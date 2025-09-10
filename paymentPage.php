@@ -1,52 +1,42 @@
 <?php
-include 'database.php';
+require_once "Payment.php";
 
-if (!isset($_GET['id']))
+$payment = new Payment();
+
+// Check if user ID exists
+if (!isset($_GET['id'])) {
     die("User ID missing.");
+}
 
-$userId = $_GET['id'];
+$userId = (int) $_GET['id'];
 
-// Handle Cancel
+// Handle cancel request
 if (isset($_GET['cancel']) && $_GET['cancel'] == 1) {
-    $stmt = $conn->prepare("UPDATE users SET payment_status=2 WHERE id=?");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $stmt->close();
+    $payment->cancelPayment($userId);
     header("Location: paymentHome.php");
     exit();
 }
 
-// Fetch user info
-$stmt = $conn->prepare("SELECT name, amount, invoice FROM users WHERE id=?");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-$stmt->close();
+// Fetch user details
+$user = $payment->getUser($userId);
 
-// Generate invoice if empty
+// Generate invoice if missing
 if (empty($user['invoice'])) {
     $invoiceNumber = 'INV-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
-    $stmt = $conn->prepare("UPDATE users SET invoice=? WHERE id=?");
-    $stmt->bind_param("si", $invoiceNumber, $userId);
-    $stmt->execute();
-    $stmt->close();
+    $payment->updateInvoice($userId, $invoiceNumber);
     $user['invoice'] = $invoiceNumber;
 }
 
-// Handle Card Payment Form Submission
+// Handle payment form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $card_number = $_POST['cardNumber'];
+    $cardNumber = $_POST['cardNumber'];
     $expMM = $_POST['expMM'];
     $expYY = $_POST['expYY'];
     $cvv = $_POST['cvv'];
-    $ch_name = $_POST['chName'];
-    $save_next = isset($_POST['save']) ? 1 : 0;
+    $chName = $_POST['chName'];
+    $saveNext = isset($_POST['save']) ? 1 : 0;
 
-    $stmt = $conn->prepare("UPDATE users SET card_number=?, mm=?, yy=?, cvv=?, ch_name=?, save_next=?, status=1 WHERE id=?");
-    $stmt->bind_param("sssssii", $card_number, $expMM, $expYY, $cvv, $ch_name, $save_next, $userId);
-    $stmt->execute();
-    $stmt->close();
+    $payment->savePayment($userId, $cardNumber, $expMM, $expYY, $cvv, $chName, $saveNext);
 
     header("Location: paymentSuccess.php?id=$userId");
     exit();

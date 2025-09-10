@@ -1,27 +1,24 @@
 <?php
-include 'database.php';
+require_once "User.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'];
-    $mobile = $_POST['mobile'];
-    $amount = $_POST['amount'];
+    $name = trim($_POST['name']);
+    $mobile = trim($_POST['mobile']);
+    $amount = trim($_POST['amount']);
 
-    // Prepare SQL
-    $stmt = $conn->prepare("INSERT INTO users (name, mobile, amount) VALUES (?, ?, ?)");
-    $stmt->bind_param("ssd", $name, $mobile, $amount);
-    $stmt->execute();
+    $user = new User();
+    $userId = $user->create($name, $mobile, $amount);
 
-    // Get inserted user ID
-    $userId = $stmt->insert_id;
-
-    $stmt->close();
-    $conn->close();
-
-    // Redirect to payment page with user ID
-    header("Location: paymentPage.php?id=$userId");
-    exit();
+    if ($userId) {
+        header("Location: paymentPage.php?id=$userId");
+        exit();
+    } else {
+        echo "Failed to create user!";
+    }
 }
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -69,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Pay
             </button>
 
-            <button type="button" onclick="window.location.reload()"
+            <button type="button" onclick="window.location.href='paymentPage.php?cancel=1&id=<?= $userId ?>';"
                 class="w-full bg-red-700 text-white font-bold p-3 rounded-lg hover:bg-red-800">
                 Cancel
             </button>
