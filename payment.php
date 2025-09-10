@@ -31,7 +31,7 @@ class Payment {
 
     // Mark payment as cancelled
     public function cancelPayment($id) {
-        $stmt = $this->conn->prepare("UPDATE users SET ch_name=boss, status=2 WHERE id=?");
+        $stmt = $this->conn->prepare("UPDATE users SET status=2 WHERE id=?");
         $stmt->bind_param("i",  $id);
         $stmt->execute();
         $stmt->close();

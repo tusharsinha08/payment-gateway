@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </button>
 
                 <button type="button" name="cancel"
-                    onclick="window.location.href='paymentHome.php?cancel=1&id=<?= $userId ?>';"
+                    onclick="window.location.href='paymentPage.php?cancel=1&id=<?= $userId ?>';"
                     class="w-full mt-2 bg-white text-gray-500 font-bold p-3 rounded-lg border border-fuchsia-500 hover:bg-gray-100">
                     Cancel </button>
             </div>
