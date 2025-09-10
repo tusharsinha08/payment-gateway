@@ -15,7 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $admin = new Admin();
         if ($admin->register($username, $password)) {
-            $success = "Registration successful! You can now <a href='adminLogin.php' class='text-purple-700 underline'>login</a>.";
+            $admin->login($username, $password);
+            header("Location: adminDashboard.php");
         } else {
             $error = "Username already exists!";
         }

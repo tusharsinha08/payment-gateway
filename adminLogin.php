@@ -9,13 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password']);
 
     $admin = new Admin();
-    $adminData = $admin->login($username, $password);
-
-    if ($adminData) {
-        $_SESSION['admin_id'] = $adminData['id'];
-        $_SESSION['admin_username'] = $adminData['username'];
-        header("Location: adminDashboard.php"); // redirect to dashboard
-        exit();
+    if ($admin->login($username, $password)) {
+        header("Location: adminDashboard.php");
+        exit;
     } else {
         $error = "Invalid username or password!";
     }
@@ -24,17 +20,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded shadow-md w-full max-w-sm">
         <h2 class="text-2xl font-bold mb-6 text-center text-fuchsia-700">Admin Login</h2>
 
-        <?php if($error): ?>
+        <?php if ($error): ?>
             <div class="bg-red-100 text-red-700 p-2 rounded mb-4"><?= $error ?></div>
         <?php endif; ?>
 
@@ -57,4 +55,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </p>
     </div>
 </body>
+
 </html>
